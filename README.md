@@ -2,6 +2,11 @@
 
 > Beyond Layered. Beyond Hexagonal. Architecture for the Age of AI Agents.
 
+[![npm version](https://img.shields.io/npm/v/create-aaca)](https://www.npmjs.com/package/create-aaca)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+[한국어 README](./README.ko.md)
+
 Traditional software architectures (Layered, Hexagonal, Clean) were designed for **human cognition** — small files, implicit conventions, abstract layers. AACA is designed for **AI agent cognition** — explicit manifests, self-contained modules, and deterministic discovery.
 
 ---
@@ -88,13 +93,13 @@ operations/create-order/
 
 ```bash
 # Create a new AACA project
-npx create-aaca my-service --lang typescript
+npx create-aaca init my-service --lang typescript
 
 # Validate your project structure
-npx aaca validate
+npx create-aaca validate
 
 # Add a new operation
-npx aaca add-operation my-new-feature
+npx create-aaca add-operation my-new-feature
 ```
 
 ### Project Structure
@@ -178,8 +183,6 @@ See [`examples/order-service/`](./examples/order-service/) for a complete TypeSc
 
 ### 1. CLI Tool (npx)
 
-npm에 publish 후 바로 사용 가능:
-
 ```bash
 # Create a new AACA project
 npx create-aaca init my-service --lang typescript
@@ -193,23 +196,21 @@ npx create-aaca validate
 
 ### 2. Claude Code Skill
 
-한 줄로 설치:
-
 ```bash
-# Option A: npx로 자동 설치
+# Option A: Auto-install via npx
 npx create-aaca install-skill
 
-# Option B: 수동 복사
+# Option B: Manual copy
 cp skill/SKILL.md ~/.claude/skills/aaca.md
 ```
 
-설치 후 Claude Code에서 `/aaca` 를 입력하면 됩니다.
+After installation, type `/aaca` in Claude Code to get started.
 
-### 3. For npm Package Maintainers
+### 3. For Contributors
 
 ```bash
-git clone https://github.com/khj68/aaca.git
-cd aaca
+git clone https://github.com/khj68/create-aaca.git
+cd create-aaca
 npm install
 npm run build
 npm publish    # publishes as 'create-aaca' to npm
