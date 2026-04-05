@@ -11,8 +11,8 @@
  */
 
 import { Command } from 'commander';
-import { scaffold } from './scaffold';
-import { validate } from './validate';
+import { scaffold } from './scaffold.js';
+import { validate } from './validate.js';
 import chalk from 'chalk';
 
 const program = new Command();
@@ -100,11 +100,13 @@ program
   .command('install-skill')
   .description('Install AACA skill for Claude Code')
   .action(async () => {
-    const os = await import('os');
-    const fs = await import('fs');
-    const path = await import('path');
+    const os = await import('node:os');
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const url = await import('node:url');
 
-    const skillSource = path.join(import.meta.dirname, '..', 'skill', 'SKILL.md');
+    const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+    const skillSource = path.join(__dirname, '..', 'skill', 'SKILL.md');
     const claudeSkillsDir = path.join(os.homedir(), '.claude', 'skills');
     const skillDest = path.join(claudeSkillsDir, 'aaca.md');
 
@@ -117,7 +119,7 @@ program
         content = fs.readFileSync(skillSource, 'utf-8');
       } else {
         // When running from npx, skill file is bundled in the package
-        const packageSkill = path.join(import.meta.dirname, '..', '..', 'skill', 'SKILL.md');
+        const packageSkill = path.join(__dirname, '..', '..', 'skill', 'SKILL.md');
         content = fs.readFileSync(packageSkill, 'utf-8');
       }
 
