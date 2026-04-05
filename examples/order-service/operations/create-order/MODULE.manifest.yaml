@@ -1,0 +1,65 @@
+module:
+  name: create-order
+  type: operation
+  description: Creates a confirmed order from a shopping cart.
+  contract: contracts/create-order.contract.yaml
+
+files:
+  - path: types.ts
+    role: type-definitions
+    description: Input, output, and internal data structures.
+  - path: errors.ts
+    role: error-definitions
+    description: Error classes matching contract error codes.
+  - path: logic.ts
+    role: pure-logic
+    description: Pure business logic functions (no side effects).
+  - path: persistence.ts
+    role: data-access
+    description: Database read/write functions.
+  - path: handler.ts
+    role: orchestrator
+    description: Wires logic, persistence, and event publishing.
+  - path: logic.test.ts
+    role: unit-test
+    description: Unit tests for pure logic functions.
+  - path: handler.test.ts
+    role: integration-test
+    description: Integration tests with mocked dependencies.
+  - path: RATIONALE.md
+    role: documentation
+    description: Business rule rationale and design reasoning.
+
+dependencies:
+  internal:
+    - module: capabilities/event-publishing
+      reason: Publishes order.confirmed events after order creation.
+    - module: infrastructure/postgres
+      reason: Persists orders and reads cart/inventory data.
+  external:
+    - package: uuid
+      version: "^9.0.0"
+      reason: Generates unique order IDs.
+
+change_impact:
+  high:
+    - description: Changes to logic.ts affect pricing and validation for ALL orders.
+    - description: Changes to handler.ts affect the orchestration flow.
+  medium:
+    - description: Changes to persistence.ts affect data access patterns.
+    - description: Changes to errors.ts may require contract updates.
+  low:
+    - description: Changes to types.ts (additive) are generally safe.
+
+testing:
+  unit:
+    file: logic.test.ts
+    framework: vitest
+    description: Tests pure business logic in isolation.
+  integration:
+    file: handler.test.ts
+    framework: vitest
+    description: Tests the full handler with mocked persistence and events.
+  contract:
+    description: >
+      Verify handler output matches contracts/create-order.contract.yaml examples.

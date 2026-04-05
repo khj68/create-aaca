@@ -1,0 +1,37 @@
+module:
+  name: postgres
+  type: infrastructure
+  description: >
+    PostgreSQL database connection pool and health check. Provides the
+    foundational data access layer for all operations and the event outbox.
+
+files:
+  - path: connection.ts
+    role: implementation
+    description: Database connection pool setup and query helper.
+  - path: health.ts
+    role: implementation
+    description: Database health check for readiness probes.
+
+dependencies:
+  internal: []
+  external:
+    - package: pg
+      version: "^8.11.0"
+      reason: PostgreSQL client for Node.js.
+
+change_impact:
+  high:
+    - description: >
+        Changes to connection.ts affect ALL database operations in the service.
+        Test thoroughly before deploying.
+  medium:
+    - description: Changes to pool settings affect performance under load.
+  low:
+    - description: Changes to health.ts only affect readiness probes.
+
+testing:
+  integration:
+    description: >
+      Test connection with a real or containerized PostgreSQL instance.
+      Health check can be tested with a mock pool.

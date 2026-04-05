@@ -1,0 +1,40 @@
+glossary:
+  - term: order
+    definition: >
+      A confirmed purchase request from a customer. Created from a cart after
+      validation, pricing calculation, and payment method verification. An order
+      is immutable once confirmed; subsequent changes are modeled as new events
+      (cancellation, refund, etc.).
+    related_terms: [cart, line_item, fulfillment]
+
+  - term: cart
+    definition: >
+      A temporary collection of items a customer intends to purchase. Carts are
+      managed by a separate cart service. The order service reads cart contents
+      at order creation time but does not own the cart lifecycle. A cart is
+      consumed (marked as converted) when an order is successfully created.
+    related_terms: [order, line_item]
+
+  - term: fulfillment
+    definition: >
+      The process of picking, packing, and shipping an order to the customer.
+      Managed by a downstream fulfillment service that subscribes to
+      order.confirmed events. The order service does not manage fulfillment
+      directly but provides the estimated_delivery date as part of the order.
+    related_terms: [order]
+
+  - term: discount_code
+    definition: >
+      A single-use alphanumeric code that applies a percentage or fixed-amount
+      discount to an order's subtotal. Discount codes are validated at order
+      creation time. A code can only be used once; applying it to an order
+      marks it as consumed. Invalid or already-consumed codes are rejected.
+    related_terms: [order, line_item]
+
+  - term: line_item
+    definition: >
+      A single product entry within a cart or order, consisting of an item ID,
+      name, quantity, and unit price in cents. The total for a line item is
+      quantity * price_cents. Line items are snapshotted from the cart at order
+      creation time to preserve the price at the moment of purchase.
+    related_terms: [cart, order]

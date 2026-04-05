@@ -1,0 +1,32 @@
+module:
+  name: event-publishing
+  type: capability
+  description: >
+    Domain event publishing capability using the transactional outbox pattern.
+    Provides a simple publish(eventName, payload) interface for operations.
+
+files:
+  - path: types.ts
+    role: type-definitions
+    description: Event type definitions and payload interfaces.
+  - path: provider.ts
+    role: implementation
+    description: Event publishing provider with publish function.
+
+dependencies:
+  internal:
+    - module: infrastructure/postgres
+      reason: Writes events to the outbox table within the same transaction.
+  external: []
+
+change_impact:
+  high:
+    - description: >
+        Changes to the publish function signature affect all operations
+        that publish events.
+  low:
+    - description: Adding new event types is additive and safe.
+
+testing:
+  unit:
+    description: Test that publish writes to the outbox with correct payload shape.

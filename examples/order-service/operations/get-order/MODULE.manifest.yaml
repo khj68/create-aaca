@@ -1,0 +1,36 @@
+module:
+  name: get-order
+  type: operation
+  description: Retrieves an existing order by its unique identifier.
+  contract: contracts/get-order.contract.yaml
+
+files:
+  - path: types.ts
+    role: type-definitions
+    description: Input and output types for order retrieval.
+  - path: logic.ts
+    role: pure-logic
+    description: Formats the raw order record into the response shape.
+  - path: handler.ts
+    role: orchestrator
+    description: Fetches order from persistence and formats the response.
+
+dependencies:
+  internal:
+    - module: infrastructure/postgres
+      reason: Reads order data from the database.
+  external: []
+
+change_impact:
+  high:
+    - description: Changes to the output shape affect all API consumers.
+  medium:
+    - description: Changes to persistence queries affect read performance.
+  low:
+    - description: Additive changes to output fields are generally safe.
+
+testing:
+  unit:
+    description: Test formatOrderResponse in logic.ts with sample data.
+  integration:
+    description: Test handler with mocked persistence.

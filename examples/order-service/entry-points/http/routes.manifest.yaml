@@ -1,0 +1,48 @@
+routes:
+  - method: POST
+    path: /orders
+    operation: create-order
+    handler: operations/create-order/handler.ts#handleCreateOrder
+    description: Creates a new order from a shopping cart.
+    request_body:
+      content_type: application/json
+      schema_ref: contracts/create-order.contract.yaml#input
+    response:
+      status: 201
+      content_type: application/json
+      schema_ref: contracts/create-order.contract.yaml#output
+    error_responses:
+      - status: 400
+        codes: [CART_EMPTY, INVALID_DISCOUNT_CODE]
+      - status: 402
+        codes: [PAYMENT_METHOD_INVALID]
+      - status: 404
+        codes: [CART_NOT_FOUND]
+      - status: 409
+        codes: [INSUFFICIENT_INVENTORY]
+
+  - method: GET
+    path: /orders/:id
+    operation: get-order
+    handler: operations/get-order/handler.ts#handleGetOrder
+    description: Retrieves an existing order by ID.
+    path_params:
+      - name: id
+        type: string
+        description: The order ID.
+    response:
+      status: 200
+      content_type: application/json
+      schema_ref: contracts/get-order.contract.yaml#output
+    error_responses:
+      - status: 404
+        codes: [ORDER_NOT_FOUND]
+
+  - method: GET
+    path: /health
+    operation: health-check
+    handler: infrastructure/postgres/health.ts#checkHealth
+    description: Database health check for readiness probes.
+    response:
+      status: 200
+      content_type: application/json

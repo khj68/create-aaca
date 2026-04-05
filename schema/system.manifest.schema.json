@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://aaca.dev/schema/system.manifest.schema.json",
+  "title": "AACA System Manifest",
+  "description": "JSON Schema for SYSTEM.manifest.yaml — the top-level manifest that describes an entire AACA system.",
+  "type": "object",
+  "required": ["system", "operations", "capabilities", "infrastructure", "agent_instructions"],
+  "additionalProperties": false,
+  "properties": {
+    "system": {
+      "type": "object",
+      "required": ["name", "description", "version", "language", "aaca_version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name of the system."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Brief description of what the system does."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "description": "Semantic version of the system (e.g. 1.0.0, 0.2.1-beta)."
+        },
+        "language": {
+          "type": "string",
+          "enum": ["typescript", "python", "java", "go", "rust", "kotlin", "swift", "csharp", "ruby", "scala", "elixir"],
+          "description": "Primary programming language of the system."
+        },
+        "framework": {
+          "type": "string",
+          "description": "Optional framework used by the system (e.g. express, fastapi, spring-boot)."
+        },
+        "aaca_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Version of the AACA specification this manifest conforms to."
+        }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "description": "Top-level business operations exposed by the system.",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "description", "entry_points", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relative path to the operation's directory."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entry_points": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "description": "List of entry-point identifiers (e.g. REST endpoints, CLI commands)."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "active", "stable", "deprecated", "removing"],
+            "description": "Lifecycle status of the operation."
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Shared capabilities (reusable modules) offered by the system.",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "used_by"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Names of operations or other modules that depend on this capability."
+          }
+        }
+      }
+    },
+    "infrastructure": {
+      "type": "array",
+      "description": "Infrastructure modules (database, messaging, external integrations, etc.).",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "used_by"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Names of modules that depend on this infrastructure."
+          }
+        }
+      }
+    },
+    "agent_instructions": {
+      "type": "object",
+      "description": "Natural-language instructions that guide an AI agent when performing common tasks.",
+      "required": ["on_new_feature", "on_bug_fix", "on_refactor"],
+      "additionalProperties": false,
+      "properties": {
+        "on_new_feature": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Steps / guidelines for implementing a new feature."
+        },
+        "on_bug_fix": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Steps / guidelines for fixing a bug."
+        },
+        "on_refactor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Steps / guidelines for refactoring code."
+        }
+      }
+    }
+  }
+}

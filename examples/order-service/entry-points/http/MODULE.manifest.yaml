@@ -1,0 +1,41 @@
+module:
+  name: http
+  type: entry-point
+  description: >
+    REST HTTP server exposing order operations as endpoints. Thin adapter
+    layer that delegates to operation handlers.
+
+files:
+  - path: router.ts
+    role: implementation
+    description: Express-style router mapping HTTP routes to operation handlers.
+  - path: routes.manifest.yaml
+    role: manifest
+    description: Machine-readable route map for tooling and documentation.
+
+dependencies:
+  internal:
+    - module: operations/create-order
+      reason: POST /orders delegates to handleCreateOrder.
+    - module: operations/get-order
+      reason: GET /orders/:id delegates to handleGetOrder.
+    - module: infrastructure/postgres
+      reason: GET /health delegates to checkHealth.
+  external:
+    - package: express
+      version: "^4.18.0"
+      reason: HTTP server framework.
+
+change_impact:
+  high:
+    - description: >
+        Changing route paths is a breaking API change for all consumers.
+  medium:
+    - description: Adding middleware affects all routes.
+  low:
+    - description: Adding new routes for new operations is additive.
+
+testing:
+  integration:
+    description: >
+      Test with supertest against the Express app, mocking operation handlers.

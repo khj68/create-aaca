@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://aaca.dev/schema/contract.schema.json",
+  "title": "AACA Contract",
+  "description": "JSON Schema for *.contract.yaml — defines the interface contract between modules.",
+  "type": "object",
+  "required": ["contract", "owner", "input", "output", "invariants", "examples"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "type": "object",
+      "required": ["name", "version", "type", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique name of the contract."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Version of this contract (semver recommended)."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["request-response", "event", "stream"],
+          "description": "Interaction pattern of the contract."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What this contract represents."
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Module or team that owns and maintains this contract."
+    },
+    "input": {
+      "type": "object",
+      "description": "JSON Schema describing the input/request payload.",
+      "additionalProperties": true
+    },
+    "output": {
+      "type": "object",
+      "description": "Describes the output shapes for this contract.",
+      "required": ["success"],
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "type": "object",
+          "description": "JSON Schema describing the successful response payload.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Known error responses the contract may produce.",
+      "items": {
+        "type": "object",
+        "required": ["code", "description", "http_status"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Machine-readable error code (e.g. NOT_FOUND, VALIDATION_ERROR)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable explanation of the error."
+          },
+          "http_status": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599,
+            "description": "HTTP status code associated with this error."
+          },
+          "details_schema": {
+            "type": "object",
+            "description": "Optional JSON Schema for additional error detail payload.",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "side_effects": {
+      "type": "array",
+      "description": "Side effects triggered by this contract.",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Category of side effect (e.g. event, database-write, external-call)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name or identifier of the side effect."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this side effect does."
+          },
+          "when": {
+            "type": "string",
+            "description": "Condition under which the side effect occurs."
+          },
+          "contract": {
+            "type": "string",
+            "description": "Related contract name (e.g. for emitted events)."
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "description": "Business rules that must always hold true for this contract.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "examples": {
+      "type": "array",
+      "description": "Concrete examples demonstrating usage of this contract.",
+      "items": {
+        "type": "object",
+        "required": ["name", "input"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Descriptive name for this example."
+          },
+          "input": {
+            "description": "Example input payload.",
+            "additionalProperties": true
+          },
+          "output": {
+            "description": "Example successful output payload.",
+            "additionalProperties": true
+          },
+          "error": {
+            "description": "Example error output (mutually exclusive with output in practice).",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

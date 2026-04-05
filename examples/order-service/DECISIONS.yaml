@@ -1,0 +1,93 @@
+decisions:
+  - id: ADR-001
+    title: Event sourcing for order state
+    status: accepted
+    date: "2025-11-15"
+    context: |
+      Orders go through multiple state transitions (confirmed, processing,
+      shipped, delivered, cancelled). We need an audit trail of every state
+      change for compliance, debugging, and analytics. Traditional CRUD updates
+      lose historical state.
+    decision: |
+      Use event sourcing for the order aggregate. Every state change is recorded
+      as an immutable domain event. The current state is derived by replaying
+      events. Events are stored in an append-only orders_events table.
+    consequences:
+      positive:
+        - Complete audit trail of every order state change
+        - Ability to rebuild state at any point in time
+        - Natural fit for event-driven downstream consumers
+        - Simplifies debugging production issues
+      negative:
+        - Higher storage requirements (events are never deleted)
+        - Slightly more complex read path (must project current state)
+        - Requires careful event schema versioning
+    alternatives_considered:
+      - name: Traditional CRUD with audit log
+        reason_rejected: >
+          Audit log is a second-class citizen, easy to forget updating.
+          Event sourcing makes the events the primary data model.
+
+  - id: ADR-002
+    title: Monetary values as integer cents
+    status: accepted
+    date: "2025-11-15"
+    context: |
+      Floating-point arithmetic causes rounding errors with currency values.
+      For example, 0.1 + 0.2 !== 0.3 in IEEE 754. These errors accumulate
+      across line items and can cause discrepancies in financial reporting.
+    decision: |
+      Represent all monetary values as integer cents (e.g., $12.99 = 1299).
+      All arithmetic is performed on integers. Conversion to display format
+      happens only at the presentation layer (entry points).
+    consequences:
+      positive:
+        - Eliminates floating-point rounding errors
+        - Integer arithmetic is exact and fast
+        - Consistent representation across all services
+        - No ambiguity about decimal precision
+      negative:
+        - Requires conversion at API boundaries
+        - Developers must remember to work in cents
+    alternatives_considered:
+      - name: Decimal library (e.g., decimal.js)
+        reason_rejected: >
+          Adds a runtime dependency for something integers solve natively.
+          Integer cents are the industry standard for payment processing.
+      - name: String-based decimal representation
+        reason_rejected: >
+          Requires parsing for every arithmetic operation. Error-prone and slow.
+
+  - id: ADR-003
+    title: Transactional outbox pattern for events
+    status: accepted
+    date: "2025-11-20"
+    context: |
+      When an order is created, we need to both persist the order and publish
+      a domain event. If we publish the event after committing the DB transaction,
+      the publish can fail, leaving downstream consumers unaware. If we publish
+      first and the DB commit fails, we have a phantom event.
+    decision: |
+      Use the transactional outbox pattern. Domain events are written to an
+      outbox table within the same database transaction as the order. A separate
+      poller (or CDC) reads the outbox and publishes events to the message broker.
+      This guarantees at-least-once delivery.
+    consequences:
+      positive:
+        - Atomicity between state change and event publication
+        - No distributed transactions required
+        - At-least-once delivery guarantee
+        - Events survive application crashes
+      negative:
+        - Slight delay between commit and event publication (polling interval)
+        - Outbox table requires cleanup/archival
+        - Downstream consumers must be idempotent
+    alternatives_considered:
+      - name: Dual writes (DB + message broker)
+        reason_rejected: >
+          No atomicity guarantee. Either write can fail independently,
+          leading to inconsistent state.
+      - name: Saga / distributed transaction
+        reason_rejected: >
+          Unnecessary complexity for this use case. The outbox pattern
+          is simpler and sufficient.

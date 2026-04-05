@@ -1,0 +1,64 @@
+system:
+  name: order-service
+  description: >
+    Order management service responsible for creating and retrieving customer orders.
+    Validates carts, calculates pricing, applies discounts, persists orders, and
+    publishes domain events.
+  version: "1.0.0"
+
+operations:
+  - name: create-order
+    path: operations/create-order
+    description: Validates a cart, calculates pricing, and creates a confirmed order.
+    contract: contracts/create-order.contract.yaml
+
+  - name: get-order
+    path: operations/get-order
+    description: Retrieves an existing order by its ID.
+    contract: contracts/get-order.contract.yaml
+
+capabilities:
+  - name: event-publishing
+    path: capabilities/event-publishing
+    description: Publishes domain events to downstream consumers via a transactional outbox.
+
+infrastructure:
+  - name: postgres
+    path: infrastructure/postgres
+    description: PostgreSQL database connection, migrations, and health checks.
+
+entry_points:
+  - name: http
+    path: entry-points/http
+    description: Express HTTP server exposing REST endpoints for order operations.
+    protocol: REST
+    port: 3000
+
+agent_instructions:
+  on_new_feature: |
+    1. Read SYSTEM.manifest.yaml to understand existing operations and capabilities.
+    2. Read GLOSSARY.yaml to align on domain terminology.
+    3. Check DECISIONS.yaml for relevant architectural decisions.
+    4. Create a new operation directory under operations/ following the existing pattern.
+    5. Define the contract in contracts/ BEFORE writing any implementation.
+    6. Add a CONTEXT.md and MODULE.manifest.yaml to the new operation directory.
+    7. Wire the new operation into the HTTP router in entry-points/http/router.ts.
+    8. Update SYSTEM.manifest.yaml to register the new operation.
+    9. Run _aaca/validate.ts to verify structural integrity.
+
+  on_bug_fix: |
+    1. Identify the affected operation by reading SYSTEM.manifest.yaml.
+    2. Read the operation's CONTEXT.md and contract to understand expected behavior.
+    3. Read the operation's logic.ts for pure business rules and handler.ts for orchestration.
+    4. Write a failing test in the operation's test file FIRST.
+    5. Fix the bug in the narrowest possible scope (prefer logic.ts over handler.ts).
+    6. Verify all existing tests still pass.
+    7. If the bug reveals a missing invariant, update the contract.
+
+  on_refactor: |
+    1. Read DECISIONS.yaml to understand why things are structured the way they are.
+    2. Read the MODULE.manifest.yaml of affected modules to understand change_impact.
+    3. Do NOT change contracts unless the refactor intentionally changes behavior.
+    4. Keep pure logic in logic.ts separate from side effects in handler.ts.
+    5. Run all tests after refactoring to confirm no regressions.
+    6. Update CONTEXT.md if the data flow or responsibilities changed.

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://aaca.dev/schema/glossary.schema.json",
+  "title": "AACA Glossary",
+  "description": "JSON Schema for GLOSSARY.yaml — defines ubiquitous language terms used throughout the system.",
+  "type": "object",
+  "required": ["terms"],
+  "additionalProperties": false,
+  "properties": {
+    "terms": {
+      "type": "object",
+      "description": "Map of term names to their definitions and metadata.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["definition"],
+        "additionalProperties": false,
+        "properties": {
+          "definition": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Clear definition of the term."
+          },
+          "not_to_be_confused_with": {
+            "type": "string",
+            "description": "Clarification to distinguish from similar or commonly confused terms."
+          },
+          "code_representation": {
+            "type": "string",
+            "description": "How this term appears in code (e.g. class name, variable, type)."
+          },
+          "lifecycle": {
+            "type": "string",
+            "description": "Description of the term's lifecycle or state transitions."
+          },
+          "constraints": {
+            "type": "string",
+            "description": "Business rules or invariants that apply to this term."
+          },
+          "owned_by": {
+            "type": "string",
+            "description": "Module or team that owns this concept."
+          }
+        }
+      }
+    }
+  }
+}

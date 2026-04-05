@@ -1,0 +1,23 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "description": "{{PROJECT_DESCRIPTION}}",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/entry-points/http/router.js",
+    "dev": "tsx watch entry-points/http/router.ts",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npx aaca validate"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "tsx": "^4.7.0",
+    "vitest": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}

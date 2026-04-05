@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://aaca.dev/schema/decisions.schema.json",
+  "title": "AACA Decisions",
+  "description": "JSON Schema for DECISIONS.yaml — Architecture Decision Records (ADRs).",
+  "type": "object",
+  "required": ["decisions"],
+  "additionalProperties": false,
+  "properties": {
+    "decisions": {
+      "type": "array",
+      "description": "List of architecture decision records.",
+      "items": {
+        "type": "object",
+        "required": ["id", "date", "title", "status", "context", "decision", "consequences"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ADR-\\d{3,}$",
+            "description": "Unique identifier (e.g. ADR-001, ADR-042)."
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the decision was recorded (YYYY-MM-DD)."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short title summarizing the decision."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["proposed", "accepted", "deprecated", "superseded"],
+            "description": "Current status of the decision."
+          },
+          "context": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Background and motivation for the decision."
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The decision that was made."
+          },
+          "consequences": {
+            "type": "object",
+            "required": ["positive", "negative"],
+            "additionalProperties": false,
+            "properties": {
+              "positive": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Positive outcomes expected from this decision."
+              },
+              "negative": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Negative outcomes or trade-offs of this decision."
+              }
+            }
+          },
+          "constraints_on_code": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [],
+            "description": "Concrete coding constraints that follow from this decision."
+          }
+        }
+      }
+    }
+  }
+}

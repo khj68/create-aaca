@@ -1,0 +1,30 @@
+schema:
+  name: Money
+  version: "1.0.0"
+  description: >
+    Represents a monetary value as an integer number of cents. All currency
+    arithmetic in the system uses this representation to avoid floating-point
+    errors. See DECISIONS.yaml ADR-002 for rationale.
+
+type: object
+required: [amount_cents, currency]
+properties:
+  amount_cents:
+    type: integer
+    minimum: 0
+    description: >
+      The monetary amount in the smallest currency unit (cents for USD/EUR).
+      For example, $12.99 is represented as 1299.
+    examples: [0, 100, 1299, 99999]
+  currency:
+    type: string
+    pattern: "^[A-Z]{3}$"
+    default: "USD"
+    description: ISO 4217 currency code. Defaults to USD.
+    examples: ["USD", "EUR", "GBP"]
+
+typescript_equivalent: |
+  interface Money {
+    amount_cents: number;  // non-negative integer
+    currency: string;      // ISO 4217, e.g. "USD"
+  }

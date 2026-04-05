@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://aaca.dev/schema/module.manifest.schema.json",
+  "title": "AACA Module Manifest",
+  "description": "JSON Schema for MODULE.manifest.yaml — describes a single module within an AACA system.",
+  "type": "object",
+  "required": ["module", "purpose", "files", "dependencies", "contracts", "change_impact", "testing"],
+  "additionalProperties": false,
+  "properties": {
+    "module": {
+      "type": "object",
+      "required": ["name", "type", "description", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique name of the module."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["operation", "capability", "infrastructure", "entry-point"],
+          "description": "Architectural role of the module."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Brief description of the module's responsibility."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "stable", "deprecated", "removing"],
+          "description": "Lifecycle status of the module."
+        }
+      }
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Detailed explanation of why this module exists and what problem it solves."
+    },
+    "files": {
+      "type": "array",
+      "description": "Source files that belong to this module.",
+      "items": {
+        "type": "object",
+        "required": ["path", "role", "description", "changes_when"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relative path to the file from the module root."
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Architectural role of the file (e.g. handler, service, repository, model, util)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What this file is responsible for."
+          },
+          "changes_when": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Describes the circumstances under which this file would need to be modified."
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Modules and contracts this module depends on.",
+      "additionalProperties": false,
+      "properties": {
+        "contracts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Contract names this module depends on."
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Capability module names this module uses."
+        },
+        "infrastructure": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Infrastructure module names this module uses."
+        },
+        "operations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Operation module names this module depends on."
+        }
+      }
+    },
+    "depended_on_by": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Names of modules that depend on this module."
+    },
+    "contracts": {
+      "type": "object",
+      "description": "Contracts implemented, published, or consumed by this module.",
+      "additionalProperties": false,
+      "properties": {
+        "implements": {
+          "type": "string",
+          "description": "The contract this module implements (if any)."
+        },
+        "publishes_events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Event contract names this module publishes."
+        },
+        "consumes_events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Event contract names this module consumes."
+        }
+      }
+    },
+    "change_impact": {
+      "type": "object",
+      "description": "Describes which files or modules are affected under various change scenarios.",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "testing": {
+      "type": "object",
+      "description": "Testing strategy for the module.",
+      "additionalProperties": false,
+      "properties": {
+        "unit_tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Paths or identifiers for unit test files."
+        },
+        "integration_tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Paths or identifiers for integration test files."
+        },
+        "coverage_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum code coverage percentage required."
+        }
+      }
+    }
+  }
+}

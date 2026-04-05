@@ -1,0 +1,142 @@
+contract:
+  name: create-order
+  version: "1.0.0"
+  description: >
+    Creates a confirmed order from a shopping cart. Validates cart contents,
+    checks inventory availability, calculates pricing with optional discount,
+    persists the order, and publishes an order.confirmed event.
+
+input:
+  type: object
+  required: [cart_id, customer_id, payment_method_id]
+  properties:
+    cart_id:
+      type: string
+      format: uuid
+      description: ID of the cart to convert into an order.
+    customer_id:
+      type: string
+      format: uuid
+      description: ID of the customer placing the order.
+    payment_method_id:
+      type: string
+      format: uuid
+      description: ID of a pre-validated payment method on file.
+    discount_code:
+      type: string
+      pattern: "^[A-Z0-9]{4,20}$"
+      description: Optional single-use discount code to apply.
+
+output:
+  type: object
+  properties:
+    order_id:
+      type: string
+      format: uuid
+      description: Unique identifier for the newly created order.
+    status:
+      type: string
+      enum: [confirmed]
+      description: Status of the order (always "confirmed" on success).
+    total_cents:
+      type: integer
+      minimum: 0
+      description: Final order total in cents after discounts and tax.
+    estimated_delivery:
+      type: string
+      format: date
+      description: Estimated delivery date in ISO 8601 format.
+
+errors:
+  - code: CART_EMPTY
+    http_status: 400
+    description: The referenced cart contains no items.
+    resolution: Add items to the cart before placing an order.
+
+  - code: CART_NOT_FOUND
+    http_status: 404
+    description: No cart exists with the given cart_id.
+    resolution: Verify the cart_id is correct and the cart has not expired.
+
+  - code: INSUFFICIENT_INVENTORY
+    http_status: 409
+    description: One or more items in the cart exceed available inventory.
+    resolution: Reduce quantities or remove out-of-stock items.
+    payload:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            item_id: { type: string }
+            requested: { type: integer }
+            available: { type: integer }
+
+  - code: INVALID_DISCOUNT_CODE
+    http_status: 400
+    description: The discount code is expired, already used, or does not exist.
+    resolution: Remove the discount code or use a valid one.
+
+  - code: PAYMENT_METHOD_INVALID
+    http_status: 402
+    description: The payment method cannot be charged (expired, declined, etc.).
+    resolution: Update the payment method and retry.
+
+side_effects:
+  - type: event
+    name: order.confirmed
+    description: >
+      Published after the order is successfully persisted. Contains the full
+      order details for downstream consumers (fulfillment, analytics, notifications).
+    payload_ref: operations/create-order/types.ts#Order
+
+  - type: database
+    description: >
+      Inserts a new row into the orders table and appends an order.confirmed
+      event to the outbox table, both within a single transaction.
+
+invariants:
+  pre:
+    - Cart must exist and contain at least one item.
+    - All items must have sufficient inventory.
+    - Payment method must be valid and chargeable.
+    - Discount code, if provided, must be valid and unused.
+  post:
+    - Order is persisted with status "confirmed".
+    - order.confirmed event is written to the outbox.
+    - Cart is marked as converted (consumed).
+    - Discount code, if used, is marked as consumed.
+    - Inventory is decremented for all ordered items.
+
+examples:
+  - name: Successful order with discount
+    input:
+      cart_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      customer_id: "cust-001"
+      payment_method_id: "pm-visa-42"
+      discount_code: "SAVE20"
+    output:
+      order_id: "ord-20251120-001"
+      status: "confirmed"
+      total_cents: 4800
+      estimated_delivery: "2025-11-27"
+
+  - name: Successful order without discount
+    input:
+      cart_id: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+      customer_id: "cust-002"
+      payment_method_id: "pm-mc-99"
+    output:
+      order_id: "ord-20251120-002"
+      status: "confirmed"
+      total_cents: 6000
+      estimated_delivery: "2025-11-27"
+
+  - name: Empty cart error
+    input:
+      cart_id: "empty-cart-id"
+      customer_id: "cust-003"
+      payment_method_id: "pm-visa-01"
+    error:
+      code: CART_EMPTY
+      message: "Cart has no items"
