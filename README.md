@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/create-aaca)](https://www.npmjs.com/package/create-aaca)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-[한국어 README](./README.ko.md)
+[![Korean](https://img.shields.io/badge/lang-한국어-red.svg)](./README.ko.md)
 
 Traditional software architectures (Layered, Hexagonal, Clean) were designed for **human cognition** — small files, implicit conventions, abstract layers. AACA is designed for **AI agent cognition** — explicit manifests, self-contained modules, and deterministic discovery.
 

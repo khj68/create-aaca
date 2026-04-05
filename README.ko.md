@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/create-aaca)](https://www.npmjs.com/package/create-aaca)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-[English README](./README.md)
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](./README.md)
 
 기존 소프트웨어 아키텍처(레이어드, 헥사고날, 클린)는 **인간의 인지 능력**에 맞춰 설계되었습니다 — 작은 파일, 암묵적 관례, 추상화 레이어. AACA는 **AI Agent의 인지 능력**에 맞춰 설계되었습니다 — 명시적 매니페스트, 자기 완결적 모듈, 결정론적 탐색.
 
